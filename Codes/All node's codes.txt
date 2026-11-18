@@ -126,7 +126,7 @@ Example Output
 
 2. Web Researcher :
 {
-  "api_key": "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",
+  "api_key": <Your Tavily API key>,
   "query": "{{ $json.task }}",
   "search_depth": "advanced",
   "max_results": 5,
