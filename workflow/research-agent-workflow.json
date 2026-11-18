@@ -1,1 +1,784 @@
-
+{
+  "name": "Research Agent",
+  "nodes": [
+    {
+      "parameters": {
+        "modelName": "models/gemini-3.1-flash-lite-preview",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
+      "typeVersion": 1.2,
+      "position": [
+        96,
+        208
+      ],
+      "id": "70e9d03a-1b55-443b-b8bd-5adcdf8e88ec",
+      "name": "Google Gemini Chat Model",
+      "credentials": {
+        "googlePalmApi": {
+          "id": "h20iXZxk0WoCkJwx",
+          "name": "Google Gemini(PaLM) Api account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "schemaType": "manual",
+        "inputSchema": "{\n  \"type\": \"object\",\n  \"properties\": {\n    \"goal\": {\n      \"type\": \"string\",\n      \"description\": \"The overall objective of the user's request.\"\n    },\n    \"topic\": {\n      \"type\": \"string\",\n      \"description\": \"The main topic identified from the user's request.\"\n    },\n    \"research_tasks\": {\n      \"type\": \"array\",\n      \"description\": \"A list of independent research tasks that can be executed in parallel.\",\n      \"items\": {\n        \"type\": \"object\",\n        \"properties\": {\n          \"title\": {\n            \"type\": \"string\",\n            \"description\": \"The section of the report this research task belongs to.\"\n          },\n          \"task\": {\n            \"type\": \"string\",\n            \"description\": \"The research task to be completed.\"\n          }\n        },\n        \"required\": [\n          \"section\",\n          \"task\"\n        ]\n      }\n    },\n    \"writing_instruction\": {\n      \"type\": \"string\",\n      \"description\": \"Instruction for the Writer Agent to generate the report.\"\n    },\n    \"review_instruction\": {\n      \"type\": \"string\",\n      \"description\": \"Instruction for the Reviewer Agent to review and improve the report.\"\n    }\n  },\n  \"required\": [\n    \"goal\",\n    \"topic\",\n    \"research_tasks\",\n    \"writing_instruction\",\n    \"review_instruction\"\n  ]\n}"
+      },
+      "type": "@n8n/n8n-nodes-langchain.outputParserStructured",
+      "typeVersion": 1.3,
+      "position": [
+        384,
+        208
+      ],
+      "id": "eec670c0-b42c-4742-8799-23c5ae3431c9",
+      "name": "Structured Output Parser"
+    },
+    {
+      "parameters": {
+        "fieldToSplitOut": "sections",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.splitOut",
+      "typeVersion": 1.1,
+      "position": [
+        1936,
+        0
+      ],
+      "id": "01e856f4-f81f-4dd8-bd0c-508cc41131db",
+      "name": "Split Out1"
+    },
+    {
+      "parameters": {
+        "modelName": "models/gemini-3.1-flash-lite-preview",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
+      "typeVersion": 1.2,
+      "position": [
+        2032,
+        208
+      ],
+      "id": "7dc111ef-6e9e-4ae6-b3aa-216fcd754aeb",
+      "name": "Google Gemini Chat Model1",
+      "credentials": {
+        "googlePalmApi": {
+          "id": "h20iXZxk0WoCkJwx",
+          "name": "Google Gemini(PaLM) Api account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "schemaType": "manual",
+        "inputSchema": "{\n  \"type\": \"object\",\n  \"properties\": {\n    \"section_title\": {\n      \"type\": \"string\"\n    },\n    \"research_task\": {\n      \"type\": \"string\"\n    },\n    \"overview\": {\n      \"type\": \"string\"\n    },\n    \"key_findings\": {\n      \"type\": \"array\",\n      \"items\": {\n        \"type\": \"string\"\n      }\n    },\n    \"important_facts\": {\n      \"type\": \"array\",\n      \"items\": {\n        \"type\": \"string\"\n      }\n    },\n    \"statistics\": {\n      \"type\": \"array\",\n      \"items\": {\n        \"type\": \"string\"\n      }\n    },\n    \"technologies\": {\n      \"type\": \"array\",\n      \"items\": {\n        \"type\": \"string\"\n      }\n    },\n    \"methodologies\": {\n      \"type\": \"array\",\n      \"items\": {\n        \"type\": \"string\"\n      }\n    },\n    \"challenges\": {\n      \"type\": \"array\",\n      \"items\": {\n        \"type\": \"string\"\n      }\n    },\n    \"future_directions\": {\n      \"type\": \"array\",\n      \"items\": {\n        \"type\": \"string\"\n      }\n    },\n    \"conflicting_evidence\": {\n      \"type\": \"array\",\n      \"items\": {\n        \"type\": \"string\"\n      }\n    },\n    \"source_assessment\": {\n      \"type\": \"string\"\n    },\n    \"confidence\": {\n      \"type\": \"object\",\n      \"properties\": {\n        \"rating\": {\n          \"type\": \"integer\",\n          \"minimum\": 1,\n          \"maximum\": 5\n        },\n        \"reason\": {\n          \"type\": \"string\"\n        }\n      }\n    },\n    \"references\": {\n      \"type\": \"array\",\n      \"items\": {\n        \"type\": \"string\"\n      }\n    }\n  },\n  \"required\": [\n  \"references\"\n]\n}"
+      },
+      "type": "@n8n/n8n-nodes-langchain.outputParserStructured",
+      "typeVersion": 1.3,
+      "position": [
+        2320,
+        208
+      ],
+      "id": "f2cb8ac4-a217-4e0c-9984-de010ba150d9",
+      "name": "Structured Output Parser1"
+    },
+    {
+      "parameters": {
+        "schemaType": "manual",
+        "inputSchema": "{\n  \"type\": \"object\",\n  \"properties\": {\n    \"title\": {\n      \"type\": \"string\"\n    },\n\n    \"table_of_contents\": {\n      \"type\": \"array\",\n      \"description\": \"Table of contents in display order.\",\n      \"items\": {\n        \"type\": \"string\"\n      }\n    },\n    \n    \"introduction\": {\n      \"type\": \"string\"\n    },\n\n    \"sections\": {\n      \"type\": \"array\",\n      \"items\": {\n        \"type\": \"object\",\n        \"properties\": {\n\n          \"heading\": {\n            \"type\": \"string\"\n          },\n\n          \"subsections\": {\n            \"type\": \"array\",\n            \"items\": {\n              \"type\": \"object\",\n              \"properties\": {\n\n                \"title\": {\n                  \"type\": \"string\"\n                },\n\n                \"content\": {\n                  \"type\": \"string\"\n                }\n\n              },\n              \"required\": [\n                \"title\",\n                \"content\"\n              ]\n            }\n          }\n\n        },\n        \"required\": [\n          \"heading\",\n          \"subsections\"\n        ]\n      }\n    },\n\n    \"conclusion\": {\n      \"type\": \"string\"\n    },\n\n    \"recommendations\": {\n      \"type\": \"array\",\n      \"items\": {\n        \"type\": \"string\"\n      }\n    },\n\n    \"references\": {\n      \"type\": \"array\",\n      \"items\": {\n        \"type\": \"string\"\n      }\n    }\n  }\n}"
+      },
+      "type": "@n8n/n8n-nodes-langchain.outputParserStructured",
+      "typeVersion": 1.3,
+      "position": [
+        2912,
+        208
+      ],
+      "id": "09af68fa-0feb-41d8-899b-62925f579e79",
+      "name": "Structured Output Parser2"
+    },
+    {
+      "parameters": {
+        "modelName": "models/gemini-3.1-flash-lite-preview",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
+      "typeVersion": 1.2,
+      "position": [
+        2608,
+        208
+      ],
+      "id": "386ab0af-3d86-4cd1-8f28-02a33de85624",
+      "name": "Google Gemini Chat Model2",
+      "credentials": {
+        "googlePalmApi": {
+          "id": "h20iXZxk0WoCkJwx",
+          "name": "Google Gemini(PaLM) Api account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "mode": "combine",
+        "combineBy": "combineByPosition",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 3.2,
+      "position": [
+        3504,
+        0
+      ],
+      "id": "09f44388-2989-4ffc-923f-88931a634f74",
+      "name": "Merge"
+    },
+    {
+      "parameters": {
+        "modelName": "models/gemini-3.1-flash-lite-preview",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
+      "typeVersion": 1.2,
+      "position": [
+        3040,
+        416
+      ],
+      "id": "378b9fdb-85e2-4d06-94da-67f620c0006d",
+      "name": "Google Gemini Chat Model3",
+      "credentials": {
+        "googlePalmApi": {
+          "id": "h20iXZxk0WoCkJwx",
+          "name": "Google Gemini(PaLM) Api account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "schemaType": "manual",
+        "inputSchema": "{\n  \"type\": \"object\",\n  \"properties\": {\n    \"overall_score\": {\n      \"type\": \"object\",\n      \"properties\": {\n        \"score\": {\n          \"type\": \"integer\",\n          \"minimum\": 0,\n          \"maximum\": 100\n        },\n        \"max_score\": {\n          \"type\": \"integer\"\n        }\n      },\n      \"required\": [\n        \"score\",\n        \"max_score\"\n      ]\n    },\n    \"summary\": {\n      \"type\": \"string\"\n    },\n    \"checks\": {\n      \"type\": \"array\",\n      \"items\": {\n        \"type\": \"object\",\n        \"properties\": {\n          \"criterion\": {\n            \"type\": \"string\"\n          },\n          \"status\": {\n            \"type\": \"string\",\n            \"enum\": [\n              \"Pass\",\n              \"Needs Improvement\",\n              \"Fail\"\n            ]\n          },\n          \"comments\": {\n            \"type\": \"string\"\n          }\n        },\n        \"required\": [\n          \"criterion\",\n          \"status\",\n          \"comments\"\n        ]\n      }\n    },\n    \"issue_summary\": {\n      \"type\": \"object\",\n      \"properties\": {\n        \"high\": {\n          \"type\": \"integer\"\n        },\n        \"medium\": {\n          \"type\": \"integer\"\n        },\n        \"low\": {\n          \"type\": \"integer\"\n        }\n      },\n      \"required\": [\n        \"high\",\n        \"medium\",\n        \"low\"\n      ]\n    },\n    \"issues\": {\n      \"type\": \"array\",\n      \"items\": {\n        \"type\": \"object\",\n        \"properties\": {\n          \"severity\": {\n            \"type\": \"string\",\n            \"enum\": [\n              \"Low\",\n              \"Medium\",\n              \"High\"\n            ]\n          },\n          \"section\": {\n            \"type\": \"string\"\n          },\n          \"issue\": {\n            \"type\": \"string\"\n          },\n          \"recommendation\": {\n            \"type\": \"string\"\n          }\n        },\n        \"required\": [\n          \"severity\",\n          \"section\",\n          \"issue\",\n          \"recommendation\"\n        ]\n      }\n    },\n    \"ready_for_rendering\": {\n      \"type\": \"boolean\"\n    },\n    \"final_verdict\": {\n      \"type\": \"string\",\n      \"enum\": [\n        \"Approved\",\n        \"Approved with Minor Revisions\",\n        \"Requires Revision\"\n      ]\n    }\n  },\n  \"required\": [\n    \"overall_score\",\n    \"summary\",\n    \"checks\",\n    \"issue_summary\",\n    \"issues\",\n    \"ready_for_rendering\",\n    \"final_verdict\"\n  ]\n}"
+      },
+      "type": "@n8n/n8n-nodes-langchain.outputParserStructured",
+      "typeVersion": 1.3,
+      "position": [
+        3344,
+        416
+      ],
+      "id": "fb01c1d3-519b-4960-ab09-16205af6c2d8",
+      "name": "Structured Output Parser3"
+    },
+    {
+      "parameters": {
+        "html": "{{\n`\n<!DOCTYPE html>\n<html lang=\"en\">\n\n<head>\n\n<meta charset=\"UTF-8\">\n\n<title>${$json.output.title}</title>\n\n</head>\n\n<style>\n\nbody{\n    font-family:Arial,Helvetica,sans-serif;\n    margin:55px;\n    color:#333;\n    line-height:1.8;\n}\n\n.cover{\n    text-align:center;\n    margin-top:180px;\n}\n\n.cover h1{\n    color:#0F4C81;\n    font-size:40px;\n    margin-bottom:15px;\n}\n\n.cover p{\n    color:#666;\n    font-size:18px;\n}\n\n.page-break{\n    page-break-after:always;\n}\n\nh2{\n    color:#0F4C81;\n    border-bottom:2px solid #ddd;\n    padding-bottom:6px;\n    margin-top:35px;\n}\n\nh3{\n    color:#1565C0;\n    margin-top:25px;\n}\n\ntable{\n    width:100%;\n    border-collapse:collapse;\n    margin-top:15px;\n}\n\ntable,th,td{\n    border:1px solid #ccc;\n}\n\nth{\n    background:#f3f3f3;\n    padding:10px;\n}\n\ntd{\n    padding:10px;\n}\n\nul,ol{\n    margin-left:25px;\n}\n\n.footer{\n    margin-top:80px;\n    text-align:center;\n    color:#777;\n    font-size:12px;\n}\n\n.badge{\n    display:inline-block;\n    padding:6px 12px;\n    border-radius:5px;\n    background:#0F4C81;\n    color:white;\n    font-weight:bold;\n}\n\n</style>\n\n<body>\n\n<div class=\"cover\">\n\n<h1>${$json.output.title}</h1>\n\n<p><strong>AI Generated Research Report</strong></p>\n\n<p>${new Date().toLocaleDateString()}</p>\n\n</div>\n\n<div class=\"page-break\"></div>\n\n<h2>Table of Contents</h2>\n\n<ol>\n\n${$json.output.table_of_contents.map(item=>`\n<li>${item}</li>\n`).join(\"\")}\n\n</ol>\n\n<h2>Introduction</h2>\n\n<p>\n\n${$json.output.introduction}\n\n</p>\n\n${$json.output.sections.map(section=>`\n\n<h2>${section.heading}</h2>\n\n${section.subsections.map(sub=>`\n\n<h3>${sub.title}</h3>\n\n<p>${sub.content}</p>\n\n`).join(\"\")}\n\n`).join(\"\")}\n\n<h2>Conclusion</h2>\n\n<p>\n\n${$json.output.conclusion}\n\n</p>\n\n<h2>Recommendations</h2>\n\n<ul>\n\n${$json.output.recommendations.map(item=>`\n<li>${item}</li>\n`).join(\"\")}\n\n</ul>\n\n<h2>References</h2>\n\n<ol>\n\n${$json.output.references.map(ref=>`\n<li>${ref}</li>\n`).join(\"\")}\n\n</ol>\n\n<div class=\"page-break\"></div>\n\n<h2>Review Summary</h2>\n\n<p>\n\n${$json.output.summary}\n\n</p>\n\n<p>\n\n<strong>Overall Score:</strong>\n\n<span class=\"badge\">\n\n${$json.output.overall_score.score} / ${$json.output.overall_score.max_score}\n\n</span>\n\n</p>\n\n<p>\n\n<strong>Final Verdict:</strong>\n\n${$json.output.final_verdict}\n\n</p>\n\n<h2>Quality Checks</h2>\n\n<table>\n\n<tr>\n\n<th>Criterion</th>\n\n<th>Status</th>\n\n<th>Comments</th>\n\n</tr>\n\n${$json.output.checks.map(check=>`\n\n<tr>\n\n<td>${check.criterion}</td>\n\n<td>${check.status}</td>\n\n<td>${check.comments}</td>\n\n</tr>\n\n`).join(\"\")}\n\n</table>\n\n<h2>Issues Found</h2>\n\n${\n$json.output.issues.length\n?\n\n`\n<table>\n\n<tr>\n\n<th>Severity</th>\n\n<th>Section</th>\n\n<th>Issue</th>\n\n<th>Recommendation</th>\n\n</tr>\n\n${$json.output.issues.map(issue=>`\n\n<tr>\n\n<td>${issue.severity}</td>\n\n<td>${issue.section}</td>\n\n<td>${issue.issue}</td>\n\n<td>${issue.recommendation}</td>\n\n</tr>\n\n`).join(\"\")}\n\n</table>\n\n`\n\n:\n\n`<p>No issues identified.</p>`\n\n}\n\n<div class=\"footer\">\n\nGenerated automatically using a Multi-Agent AI Workflow built with n8n\n\n</div>\n\n</body>\n\n</html>\n`\n}}\n"
+      },
+      "type": "n8n-nodes-base.html",
+      "typeVersion": 1.2,
+      "position": [
+        3728,
+        0
+      ],
+      "id": "905f4abd-f3fd-4e54-aa61-397d4cc10090",
+      "name": "HTML"
+    },
+    {
+      "parameters": {
+        "html": "={{ $json.html }}",
+        "additionalOptions": {
+          "filename": "={{ $('Planner').item.json.output.topic      .replace(/[^a-zA-Z0-9._-]+/g, '_')      .replace(/^_+|_+$/g, '')      .slice(0, 200) || 'research_report' }}"
+        }
+      },
+      "type": "n8n-nodes-pdfbolt.pdfBolt",
+      "typeVersion": 1,
+      "position": [
+        3952,
+        -80
+      ],
+      "id": "3c6c907e-48a0-4073-8a42-772c4681fcc5",
+      "name": "PDFBolt",
+      "credentials": {
+        "pdfBoltApi": {
+          "id": "JkL3Bol5k4E6zFFs",
+          "name": "PDFBolt account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "endpointType": "sync",
+        "html": "={{ $json.html }}",
+        "additionalOptions": {}
+      },
+      "type": "n8n-nodes-pdfbolt.pdfBolt",
+      "typeVersion": 1,
+      "position": [
+        3968,
+        144
+      ],
+      "id": "d260f4ec-8d6a-4d74-9f6c-43c3a61eaa4f",
+      "name": "PDFBolt1",
+      "credentials": {
+        "pdfBoltApi": {
+          "id": "JkL3Bol5k4E6zFFs",
+          "name": "PDFBolt account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "name": "={{ $binary.data.fileName }}",
+        "driveId": {
+          "__rl": true,
+          "value": "My Drive",
+          "mode": "list",
+          "cachedResultName": "My Drive",
+          "cachedResultUrl": "https://drive.google.com/drive/my-drive"
+        },
+        "folderId": {
+          "__rl": true,
+          "value": "1BzrDW5yiK2gygh2mJVjmdDIysV4E9ebt",
+          "mode": "list",
+          "cachedResultName": "Research Agent Results",
+          "cachedResultUrl": "https://drive.google.com/drive/folders/1BzrDW5yiK2gygh2mJVjmdDIysV4E9ebt"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleDrive",
+      "typeVersion": 3,
+      "position": [
+        4272,
+        -96
+      ],
+      "id": "eead38cc-d3b5-4e76-ad92-cf6ee90a7a2d",
+      "name": "Upload file",
+      "credentials": {
+        "googleDriveOAuth2Api": {
+          "id": "iZIPc4KloYaGpWlH",
+          "name": "Google Drive account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "message": "=✅ Your research report has been generated successfully.\n\nTopic:\n{{$('Planner').item.json.output.topic}}\n\n📄 PDF URL:\n{{ $json.documentUrl }}",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.chat",
+      "typeVersion": 1.3,
+      "position": [
+        4272,
+        144
+      ],
+      "id": "e215d08d-7147-4c67-a5eb-bb8a02726e0f",
+      "name": "Chat",
+      "webhookId": "7502e1ed-c40f-4bbe-b441-3d68698d1283"
+    },
+    {
+      "parameters": {
+        "public": true,
+        "initialMessages": "Hi there! 👋.\nI am Research Report Generation Agent. \nGive me you topic of Research.",
+        "options": {
+          "responseMode": "responseNodes"
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.chatTrigger",
+      "typeVersion": 1.5,
+      "position": [
+        0,
+        0
+      ],
+      "id": "93a5495b-2882-4ef3-b532-429e401a520c",
+      "name": "User Query",
+      "webhookId": "eca477f1-b39c-46f5-9c51-f054577dd5c9"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=Analyze the following user request and create an execution plan.\n\nUser Request:{{ $json.chatInput }}",
+        "hasOutputParser": true,
+        "options": {
+          "systemMessage": "You are the Planner Agent in a Multi-Agent AI System.\n\nYour responsibility is to analyze the user's request and create an execution plan for the other agents.\n\nYour responsibilities are:\n\n1. Understand the user's request and identify the main goal.\n2. Determine the topic of the request.\n3. Break the work into independent research tasks.\n4. Each research task should focus on only one aspect of the topic.\n5. Ensure the research tasks can be executed independently and in parallel.\n6. Generate one writing instruction for the Writer Agent.\n7. Generate one review instruction for the Reviewer Agent.\n\nRules:\n\n- Do NOT perform any research.\n- Do NOT answer the user's question.\n- Do NOT generate the report.\n- Do NOT explain your reasoning.\n- Only create the execution plan.\n\nThe execution plan must contain:\n- goal\n- topic\n- research_tasks\n- writing_instruction\n- review_instruction\n\nReturn only structured JSON.\n\nExample Output\n{\n  \"goal\": \"Generate a seminar report on Agentic AI\",\n\n  \"topic\": \"Agentic AI\",\n\n  \"research_tasks\": [\n    {\n      \"title\": \"Introduction\",\n      \"task\": \"Research the definition, history, and evolution of Agentic AI.\"\n    },\n    {\n      \"title\": \"Core Concepts\",\n      \"task\": \"Research planning, reasoning, memory, and tool usage in Agentic AI.\"\n    },\n    {\n      \"title\": \"Applications\",\n      \"task\": \"Research real-world applications of Agentic AI.\"\n    },\n    {\n      \"title\": \"Challenges\",\n      \"task\": \"Research the challenges, limitations, and ethical concerns of Agentic AI.\"\n    },\n    {\n      \"title\": \"Future Scope\",\n      \"task\": \"Research future developments and emerging trends in Agentic AI.\"\n    }\n  ],\n\n  \"writing_instruction\": \"Use all research results to write a well-structured seminar report with clear headings, paragraphs, and a conclusion.\",\n\n  \"review_instruction\": \"Review the report for factual consistency, grammar, readability, and completeness before returning the final version.\"\n}"
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 3.1,
+      "position": [
+        224,
+        0
+      ],
+      "id": "774422b7-ed57-4428-804c-98e91888f7dc",
+      "name": "Planner"
+    },
+    {
+      "parameters": {
+        "fieldToSplitOut": "=output.research_tasks",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.splitOut",
+      "typeVersion": 1.1,
+      "position": [
+        592,
+        0
+      ],
+      "id": "005bba4c-4f28-4b38-86c2-7ce5b3cfe591",
+      "name": "Tasks looper"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.tavily.com/search",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"api_key\": \"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\",\n  \"query\": \"{{ $json.task }}\",\n  \"search_depth\": \"advanced\",\n  \"max_results\": 5,\n  \"include_answer\": false\n}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.5,
+      "position": [
+        816,
+        0
+      ],
+      "id": "10fe6bb4-9ddf-40e6-8d01-11c204ac7050",
+      "name": "Web Researcher"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "171c2243-f455-417f-9b1d-9824af91d45d",
+              "name": "research_task",
+              "value": "={{ $('Tasks looper').item.json.task }}",
+              "type": "string"
+            },
+            {
+              "id": "445c2016-4090-4a72-8ecf-a20b59e9c889",
+              "name": "sources",
+              "value": "={{ $json.results }}",
+              "type": "array"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.5,
+      "position": [
+        1040,
+        0
+      ],
+      "id": "c194a454-be83-46ef-ab4c-33b89d2a9a1e",
+      "name": "Edit Fields1"
+    },
+    {
+      "parameters": {
+        "mode": "runOnceForEachItem",
+        "jsCode": "const sources = $json.sources || [];\n\n// Extract domain from URL\nfunction getDomain(url) {\n  if (!url) return \"\";\n\n  return url\n    .replace(/^https?:\\/\\//, \"\")\n    .replace(/^www\\./, \"\")\n    .split(\"/\")[0]\n    .toLowerCase();\n}\n\nconst analyzeSource = (source) => {\n  const url = source.url || \"\";\n  const hostname = getDomain(url);\n\n  let authority = \"General Website\";\n  let confidence = 2;\n\n  // Government\n  if (\n    hostname.includes(\".gov\") ||   \n    hostname.endsWith(\".gov\") ||\n    hostname.includes(\"nih.gov\") ||\n    hostname.includes(\"cdc.gov\")\n  ) {\n    authority = \"Government\";\n    confidence = 5;\n  }\n\n  // Universities\n  else if (hostname.includes(\".edu\") || \n           hostname.endsWith(\".edu\")) {\n    authority = \"University\";\n    confidence = 5;\n  }\n\n  // Scientific Journals\n  else if (\n    hostname.includes(\"nature.com\") ||\n    hostname.includes(\"sciencedirect.com\") ||\n    hostname.includes(\"springer.com\") ||\n    hostname.includes(\"pubmed\") ||\n    hostname.includes(\"ncbi.nlm.nih.gov\") ||\n    hostname.includes(\"pmc.ncbi.nlm.nih.gov\") ||\n    hostname.includes(\"ieee.org\") ||\n    hostname.includes(\"acm.org\")\n  ) {\n    authority = \"Scientific Journal\";\n    confidence = 5;\n  }\n\n  // International Organizations\n  else if (\n    hostname.includes(\"who.int\") ||\n    hostname.includes(\"un.org\") ||\n    hostname.includes(\"unesco.org\")\n  ) {\n    authority = \"International Organization\";\n    confidence = 5;\n  }\n\n  // Official Companies\n  else if (\n    hostname.includes(\"google.com\") ||\n    hostname.includes(\"deepmind.com\") ||\n    hostname.includes(\"openai.com\") ||\n    hostname.includes(\"microsoft.com\") ||\n    hostname.includes(\"ibm.com\") ||\n    hostname.includes(\"nvidia.com\")\n  ) {\n    authority = \"Official Company\";\n    confidence = 4;\n  }\n\n  // News\n  else if (\n    hostname.includes(\"bbc.com\") ||\n    hostname.includes(\"cnn.com\") ||\n    hostname.includes(\"reuters.com\") ||\n    hostname.includes(\"apnews.com\")\n  ) {\n    authority = \"News\";\n    confidence = 3;\n  }\n\n  // Blogs\n  else if (\n    hostname.includes(\"medium.com\") ||\n    hostname.includes(\"dev.to\") ||\n    hostname.includes(\"substack.com\")\n  ) {\n    authority = \"Blog\";\n    confidence = 2;\n  }\n\n  return {\n    ...source,\n    domain: hostname,\n    authority,\n    confidence\n  };\n};\n\nreturn {\n  json: {\n    research_task: $json.research_task,\n    total_sources: sources.length,\n    sources: sources.map(analyzeSource)\n  }\n};"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1264,
+        0
+      ],
+      "id": "cb2ef9cd-9396-4714-9e26-07f6d8d2fd34",
+      "name": "Source Analyzer"
+    },
+    {
+      "parameters": {
+        "aggregate": "aggregateAllItemData",
+        "destinationFieldName": "sections",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.aggregate",
+      "typeVersion": 1,
+      "position": [
+        1488,
+        0
+      ],
+      "id": "86367d7b-91b2-406a-8c5a-b85fb4a0789e",
+      "name": "Aggregate1"
+    },
+    {
+      "parameters": {
+        "aggregate": "aggregateAllItemData",
+        "destinationFieldName": "research_sections",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.aggregate",
+      "typeVersion": 1,
+      "position": [
+        2528,
+        0
+      ],
+      "id": "99ef2fa9-2a8b-4f6a-9998-23a3d05bc82f",
+      "name": "Aggregate2"
+    },
+    {
+      "parameters": {
+        "jsCode": "// Aggregate node returns one item\nconst sections = $input.first().json.sections || [];\n\n// Calculate statistics\nconst totalSections = sections.length;\n\nlet totalSources = 0;\n\nfor (const section of sections) {\n  totalSources += (section.sources || []).length;\n}\n\nreturn {\n  json: {\n    generated_at: new Date().toISOString(),\n\n    research_summary: {\n      total_sections: totalSections,\n      total_sources: totalSources\n    },\n\n    sections\n  }\n};"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1712,
+        0
+      ],
+      "id": "8fd6ba8d-0a00-496a-a35c-f9b621a34220",
+      "name": "Research Package Builder"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "Analyze the following research section.\n\nResearch Task:\n{{ $json.research_task }}\n\nNumber of Sources:\n{{ $json.total_sources }}\n\nSources:\n{{ JSON.stringify($json.sources, null, 2) }}\n\nReturn ONLY JSON matching the required schema.",
+        "hasOutputParser": true,
+        "options": {
+          "systemMessage": "You are a Senior Research Analyst.\n\nYour responsibility is to analyze ONE research topic using ONLY the supplied sources.\n\nThis is an analytical task.\n\nIt is NOT a writing task.\n\nIt is NOT a summarization task.\n\nIt is NOT a report generation task.\n\nThe supplied sources are the ONLY source of truth.\n\nNever use your own knowledge.\n\nNever introduce information not present in the supplied sources.\n\n--------------------------------------------------\nOBJECTIVE\n--------------------------------------------------\n\nCarefully compare the supplied sources.\n\nIdentify:\n\n• key findings\n• important facts\n• statistics\n• technologies\n• methodologies\n• challenges\n• future directions\n• references\n\nEvaluate source quality.\n\nPrefer information from:\n\n• Government\n• Universities\n• Scientific Journals\n• International Organizations\n• Official Companies\n\nover blogs or general websites.\n\nIf multiple sources agree,\n\nincrease confidence.\n\nIf they disagree,\n\nidentify the disagreement.\n\n--------------------------------------------------\nSTRICT RULES\n--------------------------------------------------\n\nNever invent:\n\n• facts\n• dates\n• statistics\n• technologies\n• organizations\n• studies\n\nNever fill missing information using your own knowledge.\n\nIf evidence is insufficient,\n\nstate that explicitly.\n\nOnly include recommendations or conclusions that are directly supported by the supplied sources.\n\n--------------------------------------------------\nOUTPUT REQUIREMENTS\n--------------------------------------------------\n\nReturn ONLY valid JSON matching the provided schema.\n\nNo Markdown.\n\nNo explanations.\n\nNo reasoning.\n\nNo code fences.\n\nEvery required array field must always be present.\n\nIf there is no information for a required array field, return an empty array ([]).\n\nNever omit a required field.\n\nExample:\n\"statistics\": [],\n\"technologies\": [],\n\"methodologies\": [],\n\"future_directions\": [],\n\"conflicting_evidence\": []"
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 3.1,
+      "position": [
+        2160,
+        0
+      ],
+      "id": "f4af2313-bd39-4901-9a39-45d14f57c7ac",
+      "name": "Gemini Research..."
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=Generate a comprehensive professional report from the supplied research analysis.\n\nReport Topic\n{{ $('Planner').item.json.output.topic }}\n\nResearch Analysis\n{{ JSON.stringify($json.research_sections) }}\n",
+        "hasOutputParser": true,
+        "options": {
+          "systemMessage": "You are a Senior Technical Report Writer.\n\nYour responsibility is to convert a structured research analysis into a polished, publication-ready report.\n\nYou are NOT a researcher.\n\nYou are NOT a fact checker.\n\nYou are NOT an analyst.\n\nThe supplied JSON is the ONLY source of truth.\n\n====================================================\nSTRICT REWRITE MODE\n====================================================\n\nThis is a rewriting task.\n\nNOT a research task.\n\nNOT a knowledge generation task.\n\nDo NOT use your own knowledge.\n\nDo NOT use information from your training.\n\nDo NOT infer missing information.\n\nDo NOT improve factual content.\n\nDo NOT expand concepts.\n\nDo NOT introduce any information that is not explicitly contained within the supplied JSON.\n\nIf a concept is absent from the JSON, do not mention it.\n\nEvery factual statement in the report must be traceable to the supplied JSON.\n\nIf a sentence cannot be directly supported by the JSON,\nremove it.\n\n====================================================\nNEVER ADD\n====================================================\n\nNever introduce:\n\n• statistics\n\n• percentages\n\n• organizations\n\n• studies\n\n• researchers\n\n• regulations\n\n• technologies\n\n• examples\n\n• methodologies\n\n• citations\n\n• frameworks\n\n• medical terminology\n\n• historical information\n\nunless they already exist inside the supplied JSON.\n\n====================================================\nYOUR RESPONSIBILITY\n====================================================\n\nTransform structured notes into professional writing.\n\nImprove only:\n\n• grammar\n\n• readability\n\n• organization\n\n• paragraph flow\n\n• transitions\n\n• formatting\n\nThe factual content must remain unchanged.\n\nThink like a professional editor preparing a manuscript for publication.\n\n====================================================\nREPORT STRUCTURE\n====================================================\n\nGenerate the report in Markdown using this structure.\n\n# Report Title\n\nGenerate a title from the supplied JSON.\n\n---\n\n# Executive Summary\n\nSummarize the report.\n\nOnly summarize supplied information.\n\n---\n\n# Table of Contents\n\nSimple numbered list.\n\nNo Markdown anchor links.\n\nExample:\n\n1. Introduction\n2. AI Applications\n3. Challenges\n4. Future Directions\n5. Conclusion\n\n---\n\n# Introduction\n\nIntroduce the report.\n\nDo not introduce new concepts.\n\n---\n\n# Main Sections\n\nCreate one section for every JSON section.\n\nFor each section:\n\n## Section Title\n\nConvert the supplied findings into coherent paragraphs.\n\nMerge related bullet points naturally.\n\nIntegrate statistics into sentences.\n\nDo not create new facts.\n\nIf appropriate, create tables only from supplied data.\n\nDo not create empty subsections.\n\n---\n\n# Conclusion\n\nSummarize only the supplied analysis.\n\nNo new ideas.\n\n---\n\n# Recommendations\n\nOnly include recommendations if they are directly supported by the supplied analysis.\n\nOtherwise omit this section.\n\n---\n\n# References\n\nList only the references provided in the JSON.\n\nDo not invent references.\n\n====================================================\nFORMATTING\n====================================================\n\nUse Markdown.\n\nProfessional tone.\n\nParagraph length:\n3–8 sentences.\n\nAvoid repetition.\n\nAvoid unnecessary bullet lists.\n\nTables only when useful.\n\n====================================================\nFINAL RULE\n====================================================\n\nBefore producing the report, internally verify:\n\nEvery factual statement must exist in the supplied JSON.\n\nIf it does not exist,\n\nDO NOT WRITE IT.\n\nReturn ONLY the completed report.\n\nNo explanations.\n\nNo JSON.\n\nNo reasoning."
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 3.1,
+      "position": [
+        2752,
+        0
+      ],
+      "id": "b1bd07b9-f6da-49c0-89bb-aa33853528cc",
+      "name": "Writer Agent"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=Review the following technical report.\n\nReport\n\n{{ JSON.stringify($json) }}",
+        "hasOutputParser": true,
+        "options": {
+          "systemMessage": "You are an expert Technical Report Reviewer.\n\nYour responsibility is to review a completed technical report for quality, accuracy, completeness, consistency, and readability.\n\nThe report has already been generated by a Writer Agent. Do NOT rewrite the report. Instead, evaluate its quality and identify strengths, weaknesses, and opportunities for improvement.\n\n## Review Objectives\n\nEvaluate the report for:\n\n• Completeness\n• Logical organization\n• Internal consistency\n• Accuracy with respect to the supplied report\n• Readability\n• Professional writing style\n• Section transitions\n• Coverage of important topics\n• Duplicate information\n• Missing information\n• Unsupported claims\n• Reference quality\n\n## Review Rules\n\nDo NOT invent missing facts.\n\nDo NOT introduce external knowledge.\n\nDo NOT rewrite large sections.\n\nIf an issue exists, describe the issue and provide a concise recommendation.\n\nIf no issue exists, state that the report passes that review criterion.\n\nReturn ONLY valid JSON matching the required schema."
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 3.1,
+      "position": [
+        3184,
+        208
+      ],
+      "id": "2d7c5db4-4914-4701-80df-cd2908d516dd",
+      "name": "Review Agent"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Google Gemini Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Planner",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Structured Output Parser": {
+      "ai_outputParser": [
+        [
+          {
+            "node": "Planner",
+            "type": "ai_outputParser",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Split Out1": {
+      "main": [
+        [
+          {
+            "node": "Gemini Research...",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Gemini Chat Model1": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Gemini Research...",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Structured Output Parser1": {
+      "ai_outputParser": [
+        [
+          {
+            "node": "Gemini Research...",
+            "type": "ai_outputParser",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Structured Output Parser2": {
+      "ai_outputParser": [
+        [
+          {
+            "node": "Writer Agent",
+            "type": "ai_outputParser",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Gemini Chat Model2": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Writer Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Gemini Chat Model3": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Review Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Structured Output Parser3": {
+      "ai_outputParser": [
+        [
+          {
+            "node": "Review Agent",
+            "type": "ai_outputParser",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Merge": {
+      "main": [
+        [
+          {
+            "node": "HTML",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTML": {
+      "main": [
+        [
+          {
+            "node": "PDFBolt",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "PDFBolt1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "PDFBolt": {
+      "main": [
+        [
+          {
+            "node": "Upload file",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "PDFBolt1": {
+      "main": [
+        [
+          {
+            "node": "Chat",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "User Query": {
+      "main": [
+        [
+          {
+            "node": "Planner",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Planner": {
+      "main": [
+        [
+          {
+            "node": "Tasks looper",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Tasks looper": {
+      "main": [
+        [
+          {
+            "node": "Web Researcher",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Web Researcher": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit Fields1": {
+      "main": [
+        [
+          {
+            "node": "Source Analyzer",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Source Analyzer": {
+      "main": [
+        [
+          {
+            "node": "Aggregate1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Aggregate1": {
+      "main": [
+        [
+          {
+            "node": "Research Package Builder",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Aggregate2": {
+      "main": [
+        [
+          {
+            "node": "Writer Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Research Package Builder": {
+      "main": [
+        [
+          {
+            "node": "Split Out1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Gemini Research...": {
+      "main": [
+        [
+          {
+            "node": "Aggregate2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Writer Agent": {
+      "main": [
+        [
+          {
+            "node": "Review Agent",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Merge",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Review Agent": {
+      "main": [
+        [
+          {
+            "node": "Merge",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate"
+  },
+  "versionId": "ddf2d48f-7d9a-4dd4-a0c8-80ede52a4f5d",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "898369ded4a72b6f719c27cea458140788855b2ef7fdbaba1195391c2ba08a6b"
+  },
+  "nodeGroups": [],
+  "id": "9XWdoYldk3w5IXP8",
+  "tags": []
+}
