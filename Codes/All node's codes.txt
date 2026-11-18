@@ -1,1 +1,1295 @@
+1. Planner Agent:
+1.1 = Prompt (User Message) : 
+Analyze the following user request and create an execution plan.
+
+User Request:{{ $json.chatInput }}
+
+1.2 = System Message
+You are the Planner Agent in a Multi-Agent AI System.
+
+Your responsibility is to analyze the user's request and create an execution plan for the other agents.
+
+Your responsibilities are:
+
+1. Understand the user's request and identify the main goal.
+2. Determine the topic of the request.
+3. Break the work into independent research tasks.
+4. Each research task should focus on only one aspect of the topic.
+5. Ensure the research tasks can be executed independently and in parallel.
+6. Generate one writing instruction for the Writer Agent.
+7. Generate one review instruction for the Reviewer Agent.
+
+Rules:
+
+- Do NOT perform any research.
+- Do NOT answer the user's question.
+- Do NOT generate the report.
+- Do NOT explain your reasoning.
+- Only create the execution plan.
+
+The execution plan must contain:
+- goal
+- topic
+- research_tasks
+- writing_instruction
+- review_instruction
+
+Return only structured JSON.
+
+Example Output
+{
+  "goal": "Generate a seminar report on Agentic AI",
+
+  "topic": "Agentic AI",
+
+  "research_tasks": [
+    {
+      "title": "Introduction",
+      "task": "Research the definition, history, and evolution of Agentic AI."
+    },
+    {
+      "title": "Core Concepts",
+      "task": "Research planning, reasoning, memory, and tool usage in Agentic AI."
+    },
+    {
+      "title": "Applications",
+      "task": "Research real-world applications of Agentic AI."
+    },
+    {
+      "title": "Challenges",
+      "task": "Research the challenges, limitations, and ethical concerns of Agentic AI."
+    },
+    {
+      "title": "Future Scope",
+      "task": "Research future developments and emerging trends in Agentic AI."
+    }
+  ],
+
+  "writing_instruction": "Use all research results to write a well-structured seminar report with clear headings, paragraphs, and a conclusion.",
+
+  "review_instruction": "Review the report for factual consistency, grammar, readability, and completeness before returning the final version."
+}
+
+1.3 = Structured Output PArser:
+{
+  "type": "object",
+  "properties": {
+    "goal": {
+      "type": "string",
+      "description": "The overall objective of the user's request."
+    },
+    "topic": {
+      "type": "string",
+      "description": "The main topic identified from the user's request."
+    },
+    "research_tasks": {
+      "type": "array",
+      "description": "A list of independent research tasks that can be executed in parallel.",
+      "items": {
+        "type": "object",
+        "properties": {
+          "title": {
+            "type": "string",
+            "description": "The section of the report this research task belongs to."
+          },
+          "task": {
+            "type": "string",
+            "description": "The research task to be completed."
+          }
+        },
+        "required": [
+          "section",
+          "task"
+        ]
+      }
+    },
+    "writing_instruction": {
+      "type": "string",
+      "description": "Instruction for the Writer Agent to generate the report."
+    },
+    "review_instruction": {
+      "type": "string",
+      "description": "Instruction for the Reviewer Agent to review and improve the report."
+    }
+  },
+  "required": [
+    "goal",
+    "topic",
+    "research_tasks",
+    "writing_instruction",
+    "review_instruction"
+  ]
+}
+
+
+
+
+2. Web Researcher :
+{
+  "api_key": "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",
+  "query": "{{ $json.task }}",
+  "search_depth": "advanced",
+  "max_results": 5,
+  "include_answer": false
+}
+
+
+
+3. Source Analyzer(Code node): Run once for each item
+const sources = $json.sources || [];
+
+// Extract domain from URL
+function getDomain(url) {
+  if (!url) return "";
+
+  return url
+    .replace(/^https?:\/\//, "")
+    .replace(/^www\./, "")
+    .split("/")[0]
+    .toLowerCase();
+}
+
+const analyzeSource = (source) => {
+  const url = source.url || "";
+  const hostname = getDomain(url);
+
+  let authority = "General Website";
+  let confidence = 2;
+
+  // Government
+  if (
+    hostname.includes(".gov") ||   
+    hostname.endsWith(".gov") ||
+    hostname.includes("nih.gov") ||
+    hostname.includes("cdc.gov")
+  ) {
+    authority = "Government";
+    confidence = 5;
+  }
+
+  // Universities
+  else if (hostname.includes(".edu") || 
+           hostname.endsWith(".edu")) {
+    authority = "University";
+    confidence = 5;
+  }
+
+  // Scientific Journals
+  else if (
+    hostname.includes("nature.com") ||
+    hostname.includes("sciencedirect.com") ||
+    hostname.includes("springer.com") ||
+    hostname.includes("pubmed") ||
+    hostname.includes("ncbi.nlm.nih.gov") ||
+    hostname.includes("pmc.ncbi.nlm.nih.gov") ||
+    hostname.includes("ieee.org") ||
+    hostname.includes("acm.org")
+  ) {
+    authority = "Scientific Journal";
+    confidence = 5;
+  }
+
+  // International Organizations
+  else if (
+    hostname.includes("who.int") ||
+    hostname.includes("un.org") ||
+    hostname.includes("unesco.org")
+  ) {
+    authority = "International Organization";
+    confidence = 5;
+  }
+
+  // Official Companies
+  else if (
+    hostname.includes("google.com") ||
+    hostname.includes("deepmind.com") ||
+    hostname.includes("openai.com") ||
+    hostname.includes("microsoft.com") ||
+    hostname.includes("ibm.com") ||
+    hostname.includes("nvidia.com")
+  ) {
+    authority = "Official Company";
+    confidence = 4;
+  }
+
+  // News
+  else if (
+    hostname.includes("bbc.com") ||
+    hostname.includes("cnn.com") ||
+    hostname.includes("reuters.com") ||
+    hostname.includes("apnews.com")
+  ) {
+    authority = "News";
+    confidence = 3;
+  }
+
+  // Blogs
+  else if (
+    hostname.includes("medium.com") ||
+    hostname.includes("dev.to") ||
+    hostname.includes("substack.com")
+  ) {
+    authority = "Blog";
+    confidence = 2;
+  }
+
+  return {
+    ...source,
+    domain: hostname,
+    authority,
+    confidence
+  };
+};
+
+return {
+  json: {
+    research_task: $json.research_task,
+    total_sources: sources.length,
+    sources: sources.map(analyzeSource)
+  }
+};
+
+
+
+
+
+4. Research Package Builder(code node) : run once for all items
+// Aggregate node returns one item
+const sections = $input.first().json.sections || [];
+
+// Calculate statistics
+const totalSections = sections.length;
+
+let totalSources = 0;
+
+for (const section of sections) {
+  totalSources += (section.sources || []).length;
+}
+
+return {
+  json: {
+    generated_at: new Date().toISOString(),
+
+    research_summary: {
+      total_sections: totalSections,
+      total_sources: totalSources
+    },
+
+    sections
+  }
+};
+
+
+
+
+5. Gemini Research Analyst:
+5.1 : Prompt (User Message) :
+Analyze the following research section.
+
+Research Task:
+{{ $json.research_task }}
+
+Number of Sources:
+{{ $json.total_sources }}
+
+Sources:
+{{ JSON.stringify($json.sources, null, 2) }}
+
+Return ONLY JSON matching the required schema.
+
+5.2 : System Message :
+You are a Senior Research Analyst.
+
+Your responsibility is to analyze ONE research topic using ONLY the supplied sources.
+
+This is an analytical task.
+
+It is NOT a writing task.
+
+It is NOT a summarization task.
+
+It is NOT a report generation task.
+
+The supplied sources are the ONLY source of truth.
+
+Never use your own knowledge.
+
+Never introduce information not present in the supplied sources.
+
+--------------------------------------------------
+OBJECTIVE
+--------------------------------------------------
+
+Carefully compare the supplied sources.
+
+Identify:
+
+• key findings
+• important facts
+• statistics
+• technologies
+• methodologies
+• challenges
+• future directions
+
+Evaluate source quality.
+
+Prefer information from:
+
+• Government
+• Universities
+• Scientific Journals
+• International Organizations
+• Official Companies
+
+over blogs or general websites.
+
+If multiple sources agree,
+
+increase confidence.
+
+If they disagree,
+
+identify the disagreement.
+
+--------------------------------------------------
+STRICT RULES
+--------------------------------------------------
+
+Never invent:
+
+• facts
+• dates
+• statistics
+• technologies
+• organizations
+• studies
+
+Never fill missing information using your own knowledge.
+
+If evidence is insufficient,
+
+state that explicitly.
+
+Only include recommendations or conclusions that are directly supported by the supplied sources.
+
+--------------------------------------------------
+OUTPUT REQUIREMENTS
+--------------------------------------------------
+
+Return ONLY valid JSON matching the provided schema.
+
+No Markdown.
+
+No explanations.
+
+No reasoning.
+
+No code fences.
+
+Every required array field must always be present.
+
+If there is no information for a required array field, return an empty array ([]).
+
+Never omit a required field.
+
+Example:
+"statistics": [],
+"technologies": [],
+"methodologies": [],
+"future_directions": [],
+"conflicting_evidence": []
+
+
+5.3 : Structured output parser:
+{
+  "type": "object",
+  "properties": {
+    "section_title": {
+      "type": "string"
+    },
+    "research_task": {
+      "type": "string"
+    },
+    "overview": {
+      "type": "string"
+    },
+    "key_findings": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "important_facts": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "statistics": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "technologies": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "methodologies": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "challenges": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "future_directions": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "conflicting_evidence": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "source_assessment": {
+      "type": "string"
+    },
+    "confidence": {
+      "type": "object",
+      "properties": {
+        "rating": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 5
+        },
+        "reason": {
+          "type": "string"
+        }
+      }
+    },
+    "references": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    }
+  },
+  "required": [
+  "references"
+]
+}
+
+
+
+6. Writer Agent :
+6.1 : Prompt(User Message):
+Generate a comprehensive professional report from the supplied research analysis.
+
+Report Topic
+{{ $('Planner').item.json.output.topic }}
+
+Research Analysis
+{{ JSON.stringify($json.research_sections) }}
+
+6.2 : System Message :
+You are a Senior Technical Report Writer.
+
+Your responsibility is to convert a structured research analysis into a polished, publication-ready report.
+
+You are NOT a researcher.
+
+You are NOT a fact checker.
+
+You are NOT an analyst.
+
+The supplied JSON is the ONLY source of truth.
+
+====================================================
+STRICT REWRITE MODE
+====================================================
+
+This is a rewriting task.
+
+NOT a research task.
+
+NOT a knowledge generation task.
+
+Do NOT use your own knowledge.
+
+Do NOT use information from your training.
+
+Do NOT infer missing information.
+
+Do NOT improve factual content.
+
+Do NOT expand concepts.
+
+Do NOT introduce any information that is not explicitly contained within the supplied JSON.
+
+If a concept is absent from the JSON, do not mention it.
+
+Every factual statement in the report must be traceable to the supplied JSON.
+
+If a sentence cannot be directly supported by the JSON,
+remove it.
+
+====================================================
+NEVER ADD
+====================================================
+
+Never introduce:
+
+• statistics
+
+• percentages
+
+• organizations
+
+• studies
+
+• researchers
+
+• regulations
+
+• technologies
+
+• examples
+
+• methodologies
+
+• citations
+
+• frameworks
+
+• medical terminology
+
+• historical information
+
+unless they already exist inside the supplied JSON.
+
+====================================================
+YOUR RESPONSIBILITY
+====================================================
+
+Transform structured notes into professional writing.
+
+Improve only:
+
+• grammar
+
+• readability
+
+• organization
+
+• paragraph flow
+
+• transitions
+
+• formatting
+
+The factual content must remain unchanged.
+
+Think like a professional editor preparing a manuscript for publication.
+
+====================================================
+REPORT STRUCTURE
+====================================================
+
+Generate the report in Markdown using this structure.
+
+# Report Title
+
+Generate a title from the supplied JSON.
+
+---
+
+# Executive Summary
+
+Summarize the report.
+
+Only summarize supplied information.
+
+---
+
+# Table of Contents
+
+Simple numbered list.
+
+No Markdown anchor links.
+
+Example:
+
+1. Introduction
+2. AI Applications
+3. Challenges
+4. Future Directions
+5. Conclusion
+
+---
+
+# Introduction
+
+Introduce the report.
+
+Do not introduce new concepts.
+
+---
+
+# Main Sections
+
+Create one section for every JSON section.
+
+For each section:
+
+## Section Title
+
+Convert the supplied findings into coherent paragraphs.
+
+Merge related bullet points naturally.
+
+Integrate statistics into sentences.
+
+Do not create new facts.
+
+If appropriate, create tables only from supplied data.
+
+Do not create empty subsections.
+
+---
+
+# Conclusion
+
+Summarize only the supplied analysis.
+
+No new ideas.
+
+---
+
+# Recommendations
+
+Only include recommendations if they are directly supported by the supplied analysis.
+
+Otherwise omit this section.
+
+---
+
+# References
+
+List only the references provided in the JSON.
+
+Do not invent references.
+
+====================================================
+FORMATTING
+====================================================
+
+Use Markdown.
+
+Professional tone.
+
+Paragraph length:
+3–8 sentences.
+
+Avoid repetition.
+
+Avoid unnecessary bullet lists.
+
+Tables only when useful.
+
+====================================================
+FINAL RULE
+====================================================
+
+Before producing the report, internally verify:
+
+Every factual statement must exist in the supplied JSON.
+
+If it does not exist,
+
+DO NOT WRITE IT.
+
+Return ONLY the completed report.
+
+No explanations.
+
+No JSON.
+
+No reasoning.
+
+6.3 : Structured Output Parser :
+{
+  "type": "object",
+  "properties": {
+    "title": {
+      "type": "string"
+    },
+
+    "table_of_contents": {
+      "type": "array",
+      "description": "Table of contents in display order.",
+      "items": {
+        "type": "string"
+      }
+    },
+    
+    "introduction": {
+      "type": "string"
+    },
+
+    "sections": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+
+          "heading": {
+            "type": "string"
+          },
+
+          "subsections": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+
+                "title": {
+                  "type": "string"
+                },
+
+                "content": {
+                  "type": "string"
+                }
+
+              },
+              "required": [
+                "title",
+                "content"
+              ]
+            }
+          }
+
+        },
+        "required": [
+          "heading",
+          "subsections"
+        ]
+      }
+    },
+
+    "conclusion": {
+      "type": "string"
+    },
+
+    "recommendations": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+
+    "references": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    }
+  }
+}
+
+
+
+
+7. Review Agent:
+7.1 : Prompt(user Message):
+Review the following technical report.
+
+Report
+
+{{ JSON.stringify($json) }}
+
+7.2 : System message:
+You are an expert Technical Report Reviewer.
+
+Your responsibility is to review a completed technical report for quality, accuracy, completeness, consistency, and readability.
+
+The report has already been generated by a Writer Agent. Do NOT rewrite the report. Instead, evaluate its quality and identify strengths, weaknesses, and opportunities for improvement.
+
+## Review Objectives
+
+Evaluate the report for:
+
+• Completeness
+• Logical organization
+• Internal consistency
+• Accuracy with respect to the supplied report
+• Readability
+• Professional writing style
+• Section transitions
+• Coverage of important topics
+• Duplicate information
+• Missing information
+• Unsupported claims
+• Reference quality
+
+## Review Rules
+
+Do NOT invent missing facts.
+
+Do NOT introduce external knowledge.
+
+Do NOT rewrite large sections.
+
+If an issue exists, describe the issue and provide a concise recommendation.
+
+If no issue exists, state that the report passes that review criterion.
+
+Return ONLY valid JSON matching the required schema.
+
+7.3 : Structured output parser :
+{
+  "type": "object",
+  "properties": {
+    "overall_score": {
+      "type": "object",
+      "properties": {
+        "score": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 100
+        },
+        "max_score": {
+          "type": "integer"
+        }
+      },
+      "required": [
+        "score",
+        "max_score"
+      ]
+    },
+    "summary": {
+      "type": "string"
+    },
+    "checks": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "criterion": {
+            "type": "string"
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "Pass",
+              "Needs Improvement",
+              "Fail"
+            ]
+          },
+          "comments": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "criterion",
+          "status",
+          "comments"
+        ]
+      }
+    },
+    "issue_summary": {
+      "type": "object",
+      "properties": {
+        "high": {
+          "type": "integer"
+        },
+        "medium": {
+          "type": "integer"
+        },
+        "low": {
+          "type": "integer"
+        }
+      },
+      "required": [
+        "high",
+        "medium",
+        "low"
+      ]
+    },
+    "issues": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "severity": {
+            "type": "string",
+            "enum": [
+              "Low",
+              "Medium",
+              "High"
+            ]
+          },
+          "section": {
+            "type": "string"
+          },
+          "issue": {
+            "type": "string"
+          },
+          "recommendation": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "severity",
+          "section",
+          "issue",
+          "recommendation"
+        ]
+      }
+    },
+    "ready_for_rendering": {
+      "type": "boolean"
+    },
+    "final_verdict": {
+      "type": "string",
+      "enum": [
+        "Approved",
+        "Approved with Minor Revisions",
+        "Requires Revision"
+      ]
+    }
+  },
+  "required": [
+    "overall_score",
+    "summary",
+    "checks",
+    "issue_summary",
+    "issues",
+    "ready_for_rendering",
+    "final_verdict"
+  ]
+}
+
+
+
+
+8. HTML: Generate html template :
+{{
+`
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+<meta charset="UTF-8">
+
+<title>${$json.output.title}</title>
+
+</head>
+
+<style>
+
+body{
+    font-family:Arial,Helvetica,sans-serif;
+    margin:55px;
+    color:#333;
+    line-height:1.8;
+}
+
+.cover{
+    text-align:center;
+    margin-top:180px;
+}
+
+.cover h1{
+    color:#0F4C81;
+    font-size:40px;
+    margin-bottom:15px;
+}
+
+.cover p{
+    color:#666;
+    font-size:18px;
+}
+
+.page-break{
+    page-break-after:always;
+}
+
+h2{
+    color:#0F4C81;
+    border-bottom:2px solid #ddd;
+    padding-bottom:6px;
+    margin-top:35px;
+}
+
+h3{
+    color:#1565C0;
+    margin-top:25px;
+}
+
+table{
+    width:100%;
+    border-collapse:collapse;
+    margin-top:15px;
+}
+
+table,th,td{
+    border:1px solid #ccc;
+}
+
+th{
+    background:#f3f3f3;
+    padding:10px;
+}
+
+td{
+    padding:10px;
+}
+
+ul,ol{
+    margin-left:25px;
+}
+
+.footer{
+    margin-top:80px;
+    text-align:center;
+    color:#777;
+    font-size:12px;
+}
+
+.badge{
+    display:inline-block;
+    padding:6px 12px;
+    border-radius:5px;
+    background:#0F4C81;
+    color:white;
+    font-weight:bold;
+}
+
+</style>
+
+<body>
+
+<div class="cover">
+
+<h1>${$json.output.title}</h1>
+
+<p><strong>AI Generated Research Report</strong></p>
+
+<p>${new Date().toLocaleDateString()}</p>
+
+</div>
+
+<div class="page-break"></div>
+
+<h2>Table of Contents</h2>
+
+<ol>
+
+${$json.output.table_of_contents.map(item=>`
+<li>${item}</li>
+`).join("")}
+
+</ol>
+
+<h2>Introduction</h2>
+
+<p>
+
+${$json.output.introduction}
+
+</p>
+
+${$json.output.sections.map(section=>`
+
+<h2>${section.heading}</h2>
+
+${section.subsections.map(sub=>`
+
+<h3>${sub.title}</h3>
+
+<p>${sub.content}</p>
+
+`).join("")}
+
+`).join("")}
+
+<h2>Conclusion</h2>
+
+<p>
+
+${$json.output.conclusion}
+
+</p>
+
+<h2>Recommendations</h2>
+
+<ul>
+
+${$json.output.recommendations.map(item=>`
+<li>${item}</li>
+`).join("")}
+
+</ul>
+
+<h2>References</h2>
+
+<ol>
+
+${$json.output.references.map(ref=>`
+<li>${ref}</li>
+`).join("")}
+
+</ol>
+
+<div class="page-break"></div>
+
+<h2>Review Summary</h2>
+
+<p>
+
+${$json.output.summary}
+
+</p>
+
+<p>
+
+<strong>Overall Score:</strong>
+
+<span class="badge">
+
+${$json.output.overall_score.score} / ${$json.output.overall_score.max_score}
+
+</span>
+
+</p>
+
+<p>
+
+<strong>Final Verdict:</strong>
+
+${$json.output.final_verdict}
+
+</p>
+
+<h2>Quality Checks</h2>
+
+<table>
+
+<tr>
+
+<th>Criterion</th>
+
+<th>Status</th>
+
+<th>Comments</th>
+
+</tr>
+
+${$json.output.checks.map(check=>`
+
+<tr>
+
+<td>${check.criterion}</td>
+
+<td>${check.status}</td>
+
+<td>${check.comments}</td>
+
+</tr>
+
+`).join("")}
+
+</table>
+
+<h2>Issues Found</h2>
+
+${
+$json.output.issues.length
+?
+
+`
+<table>
+
+<tr>
+
+<th>Severity</th>
+
+<th>Section</th>
+
+<th>Issue</th>
+
+<th>Recommendation</th>
+
+</tr>
+
+${$json.output.issues.map(issue=>`
+
+<tr>
+
+<td>${issue.severity}</td>
+
+<td>${issue.section}</td>
+
+<td>${issue.issue}</td>
+
+<td>${issue.recommendation}</td>
+
+</tr>
+
+`).join("")}
+
+</table>
+
+`
+
+:
+
+`<p>No issues identified.</p>`
+
+}
+
+<div class="footer">
+
+Generated automatically using a Multi-Agent AI Workflow built with n8n
+
+</div>
+
+</body>
+
+</html>
+`
+}}
+
+
+
+
+9. html to pdf pdfBolt node : Filename :
+{{ $('Planner').item.json.output.topic
+     .replace(/[^a-zA-Z0-9._-]+/g, '_')
+     .replace(/^_+|_+$/g, '')
+     .slice(0, 200) || 'research_report' }}
+
+
+
+
+10. Response to Chat : Message :
+✅ Your research report has been generated successfully.
+
+Topic:
+{{$('Planner').item.json.output.topic}}
+
+📄 PDF URL:
+{{ $json.documentUrl }}
 
