@@ -16,7 +16,7 @@
       "name": "Google Gemini Chat Model",
       "credentials": {
         "googlePalmApi": {
-          "id": "h20iXZxk0WoCkJwx",
+          "id": "Your id",
           "name": "Google Gemini(PaLM) Api account"
         }
       }
@@ -64,7 +64,7 @@
       "name": "Google Gemini Chat Model1",
       "credentials": {
         "googlePalmApi": {
-          "id": "h20iXZxk0WoCkJwx",
+          "id": "Your id",
           "name": "Google Gemini(PaLM) Api account"
         }
       }
@@ -112,7 +112,7 @@
       "name": "Google Gemini Chat Model2",
       "credentials": {
         "googlePalmApi": {
-          "id": "h20iXZxk0WoCkJwx",
+          "id": "Your id",
           "name": "Google Gemini(PaLM) Api account"
         }
       }
@@ -147,7 +147,7 @@
       "name": "Google Gemini Chat Model3",
       "credentials": {
         "googlePalmApi": {
-          "id": "h20iXZxk0WoCkJwx",
+          "id": "Your id",
           "name": "Google Gemini(PaLM) Api account"
         }
       }
@@ -196,7 +196,7 @@
       "name": "PDFBolt",
       "credentials": {
         "pdfBoltApi": {
-          "id": "JkL3Bol5k4E6zFFs",
+          "id": "Your id",
           "name": "PDFBolt account"
         }
       }
@@ -217,7 +217,7 @@
       "name": "PDFBolt1",
       "credentials": {
         "pdfBoltApi": {
-          "id": "JkL3Bol5k4E6zFFs",
+          "id": "Your id",
           "name": "PDFBolt account"
         }
       }
@@ -234,10 +234,10 @@
         },
         "folderId": {
           "__rl": true,
-          "value": "1BzrDW5yiK2gygh2mJVjmdDIysV4E9ebt",
+          "value": "",
           "mode": "list",
           "cachedResultName": "Research Agent Results",
-          "cachedResultUrl": "https://drive.google.com/drive/folders/1BzrDW5yiK2gygh2mJVjmdDIysV4E9ebt"
+          "cachedResultUrl": "Your-google-drive-folder-URL"
         },
         "options": {}
       },
@@ -247,11 +247,11 @@
         4272,
         -96
       ],
-      "id": "eead38cc-d3b5-4e76-ad92-cf6ee90a7a2d",
+      "id": "Your id",
       "name": "Upload file",
       "credentials": {
         "googleDriveOAuth2Api": {
-          "id": "iZIPc4KloYaGpWlH",
+          "id": "Your id",
           "name": "Google Drive account"
         }
       }
@@ -267,9 +267,9 @@
         4272,
         144
       ],
-      "id": "e215d08d-7147-4c67-a5eb-bb8a02726e0f",
+      "id": "Your id",
       "name": "Chat",
-      "webhookId": "7502e1ed-c40f-4bbe-b441-3d68698d1283"
+      "webhookId": "Your id"
     },
     {
       "parameters": {
@@ -285,9 +285,9 @@
         0,
         0
       ],
-      "id": "93a5495b-2882-4ef3-b532-429e401a520c",
+      "id": "Your id",
       "name": "User Query",
-      "webhookId": "eca477f1-b39c-46f5-9c51-f054577dd5c9"
+      "webhookId": "Your id"
     },
     {
       "parameters": {
@@ -304,7 +304,7 @@
         224,
         0
       ],
-      "id": "774422b7-ed57-4428-804c-98e91888f7dc",
+      "id": "Your id",
       "name": "Planner"
     },
     {
@@ -318,7 +318,7 @@
         592,
         0
       ],
-      "id": "005bba4c-4f28-4b38-86c2-7ce5b3cfe591",
+      "id": "Your id",
       "name": "Tasks looper"
     },
     {
@@ -327,7 +327,7 @@
         "url": "https://api.tavily.com/search",
         "sendBody": true,
         "specifyBody": "json",
-        "jsonBody": "={\n  \"api_key\": \"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\",\n  \"query\": \"{{ $json.task }}\",\n  \"search_depth\": \"advanced\",\n  \"max_results\": 5,\n  \"include_answer\": false\n}",
+        "jsonBody": "={\n  \"api_key\": \"Your-Tavily-API-Key\",\n  \"query\": \"{{ $json.task }}\",\n  \"search_depth\": \"advanced\",\n  \"max_results\": 5,\n  \"include_answer\": false\n}",
         "options": {}
       },
       "type": "n8n-nodes-base.httpRequest",
@@ -336,7 +336,7 @@
         816,
         0
       ],
-      "id": "10fe6bb4-9ddf-40e6-8d01-11c204ac7050",
+      "id": "Your id",
       "name": "Web Researcher"
     },
     {
@@ -344,13 +344,13 @@
         "assignments": {
           "assignments": [
             {
-              "id": "171c2243-f455-417f-9b1d-9824af91d45d",
+              "id": "Your id",
               "name": "research_task",
               "value": "={{ $('Tasks looper').item.json.task }}",
               "type": "string"
             },
             {
-              "id": "445c2016-4090-4a72-8ecf-a20b59e9c889",
+              "id": "Your id",
               "name": "sources",
               "value": "={{ $json.results }}",
               "type": "array"
@@ -365,7 +365,7 @@
         1040,
         0
       ],
-      "id": "c194a454-be83-46ef-ab4c-33b89d2a9a1e",
+      "id": "Your id",
       "name": "Edit Fields1"
     },
     {
@@ -379,7 +379,7 @@
         1264,
         0
       ],
-      "id": "cb2ef9cd-9396-4714-9e26-07f6d8d2fd34",
+      "id": "Your id",
       "name": "Source Analyzer"
     },
     {
@@ -773,12 +773,12 @@
     "executionOrder": "v1",
     "binaryMode": "separate"
   },
-  "versionId": "ddf2d48f-7d9a-4dd4-a0c8-80ede52a4f5d",
+  "versionId": "Your id",
   "meta": {
     "templateCredsSetupCompleted": true,
-    "instanceId": "898369ded4a72b6f719c27cea458140788855b2ef7fdbaba1195391c2ba08a6b"
+    "instanceId": "Your id"
   },
   "nodeGroups": [],
-  "id": "9XWdoYldk3w5IXP8",
+  "id": "Your id",
   "tags": []
 }
